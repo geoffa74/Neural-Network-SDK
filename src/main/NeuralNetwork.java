@@ -10,14 +10,13 @@ import java.io.Serializable;
 
 import main.ActivationFunctions.ActivationFunction;
 import main.CostFunctions.CostFunction;
-import main.WeightMatrix.Type;
 
 public class NeuralNetwork implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
 	private Layer[] layers;
 	private int numLayers;
-	private WeightMatrix[] weights;
+	private double[][][] weights;
 	private ActivationFunction hiddenLayerFunction;
 	private ActivationFunction outputLayerFunction;
 	private CostFunction costFunction;
@@ -28,9 +27,14 @@ public class NeuralNetwork implements Serializable {
 		this.hiddenLayerFunction = hiddenLayerFunction;
 		this.outputLayerFunction = outputLayerFunction;
 		this.costFunction = costFunction;
-		weights = new WeightMatrix[layers.length - 1];
+		weights = new double[layers.length - 1][][];
 		for(int i = 0; i < weights.length; i++) {
-			weights[i] = new WeightMatrix(layers[i + 1].length(), layers[i].length(), Type.RANDOM);
+			weights[i] = new double[layers[i + 1].length()][layers[i].length()];
+			for(int j = 0; i < layers[i + 1].length(); i++) {
+				for(int k = 0; j < layers[i].length(); j++) {
+					weights[i][j][k] = Math.random();
+				}
+			}
 		}
 	}
 	
@@ -43,26 +47,61 @@ public class NeuralNetwork implements Serializable {
 	}
 	
 	public void train(TrainingData[] batch, double learningConstant) {
-		WeightMatrix[] weightChangeTotal = new WeightMatrix[numLayers - 1];
+		double[][][] weightChangeTotal = new double[numLayers - 1][][];
 		for(int i = 0; i < weights.length; i++) {
-			weightChangeTotal[i] = new WeightMatrix(layers[i + 1].length(), layers[i].length(), Type.ZERO);
+			weightChangeTotal[i] = new double[layers[i + 1].length()][layers[i].length()];
+			for(int j = 0; i < layers[i + 1].length(); i++) {
+				for(int k = 0; j < layers[i].length(); j++) {
+					weights[i][j][k] = 0.0;
+				}
+			}
 		}
 		for(int batchIndex = 0; batchIndex < batch.length; batchIndex++) {
-			input(batch[batchIndex]);
+			input(batch[batchIndex].getInput());
+			double[] nodeChanges = new double[layers[numLayers - 1].length()];
+			for(int i = 0; i < layers[numLayers - 1].length(); i++) {
+				nodeChanges[i] = getCostDerivitive(layers[numLayers - 1].getNodes()[i], batch[batchIndex].getOutput()[i]);
+			}
+			
+			for(int i = numLayers - 2; i >= 0; i--) {
+				
+			}
 		}
 
 	}
 
+	private double getCostDerivitive(double actual, double target) {
+		switch(costFunction) {
+		case QUADRATIC:
+			return actual - target;
+		}
+		return 0;
+	}
+
 	protected void input(double[] values) {
 		layers[0].setNodes(values);
+		//Calculate nodes in inner layers
 		for(int i = 1; i < layers.length - 1; i++) {
-			layers[i].setNodes(weights[i - 1].multiply(layers[i - 1].getNodes()));
+			for(int j = 0; j < layers[i].length(); j++) {
+				double value = 0.0;
+				for(int k = 0; k < layers[i - 1].length(); k++) {
+					value += layers[i - 1].getNode(k) * weights[i - 1][j][k];
+				}
+				layers[i].setNode(j, value);
+			}
 			layers[i].addBiases();
 			layers[i].applyActivationFunction(hiddenLayerFunction);
 		}
-		layers[numLayers - 1].setNodes(weights[numLayers - 2].multiply(layers[numLayers - 2].getNodes()));
-		layers[numLayers - 1].addBiases();
-		layers[numLayers - 1].applyActivationFunction(outputLayerFunction);
+		//Calculate nodes in outer layer
+		for(int i = 0; i < layers[layers.length - 1].length(); i++) {
+			double value = 0.0;
+			for(int j = 0; j < layers[layers.length - 2].length(); j++) {
+				value += layers[layers.length - 2].getNode(j) * weights[layers.length - 2][i][j];
+			}
+			layers[layers.length - 1].setNode(i, value);
+		}
+		layers[layers.length - 1].addBiases();
+		layers[layers.length - 1].applyActivationFunction(outputLayerFunction);
 	}
 	
 	public void save(String location, String fileName) throws IOException {

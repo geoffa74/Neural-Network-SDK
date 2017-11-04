@@ -26,6 +26,14 @@ public class Layer implements Serializable {
 		}
 	}
 	
+	public double getNode(int index) {
+		return nodes[index];
+	}
+	
+	public void setNode(int index, double value) {
+		nodes[index] = value;
+	}
+	
 	public int length() {
 		return length;
 	}
