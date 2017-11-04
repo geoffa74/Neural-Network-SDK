@@ -21,6 +21,10 @@ public class TrainingData {
 	public double[] getOutput() {
 		return output;
 	}
+	
+	public double getOutputNode(int index) {
+		return output[index];
+	}
 
 	public void setOutput(double[] output) {
 		this.output = output;

@@ -8,9 +8,10 @@ public class Layer implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
 	private double[] nodes;
+	private double[] nodesBeforeActivation;
 	private double[] biases;
 	private double[] biasChangeTotal;
-	private int changeCount;
+	private double[] nodeChangeTotal;
 	private int length;
 	
 	public Layer(int length) {
@@ -18,12 +19,21 @@ public class Layer implements Serializable {
 		nodes = new double[length];
 		biases = new double[length];
 		biasChangeTotal = new double[length];
-		changeCount = 0;
+		nodeChangeTotal = new double[length];
 		for(int i = 0; i < length; i++) {
 			nodes[i] = Math.random();
 			biases[i] = Math.random();
 			biasChangeTotal[i] = 0.0;
+			nodeChangeTotal[i] = 0.0;
 		}
+	}
+	
+	public void addNodeChange(int index, double amount) {
+		nodeChangeTotal[index] += amount;
+	}
+	
+	public double getNodeBeforeActivation(int index) {
+		return nodesBeforeActivation[index];
 	}
 	
 	public double getNode(int index) {
@@ -52,14 +62,11 @@ public class Layer implements Serializable {
 		}
 	}
 	
-	protected void addToBiasChangeTotal(double[] change) {
-		for(int i = 0; i < length; i++) {
-			biasChangeTotal[i] += change[i];
-		}
-		changeCount++;
+	protected void addToBiasChangeTotal(int index, double change) {
+		biasChangeTotal[index] += change;
 	}
 	
-	protected void addAverageBiasChanges() {
+	protected void addAverageBiasChanges(int changeCount) {
 		for(int i = 0; i < length; i++) {
 			biases[i] += biasChangeTotal[i] / changeCount;
 			biasChangeTotal[i] = 0.0;
@@ -68,6 +75,7 @@ public class Layer implements Serializable {
 	}
 	
 	protected void applyActivationFunction(ActivationFunction function) {
+		nodesBeforeActivation = nodes;
 		switch(function) {
 		case SIGMOID:
 			applySigmoid();
