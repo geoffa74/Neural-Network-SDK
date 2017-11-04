@@ -14,6 +14,7 @@ import main.CostFunctions.CostFunction;
 public class NeuralNetwork implements Serializable {
 	
 	//TODO Turn layers into double[][] and add all garbage inside to the NeuralNetwork;
+	//TODO All other variables in layers should be scope variables in train();
 	
 	private static final long serialVersionUID = 1L;
 	private Layer[] layers;
