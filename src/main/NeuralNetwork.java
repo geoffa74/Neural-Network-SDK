@@ -130,7 +130,7 @@ public class NeuralNetwork implements Serializable {
 		}
 	}
 	
-	protected double getSigmoidDerivitive(double value) {
+	private double getSigmoidDerivitive(double value) {
 		double sigmoid =  1.0 / (1.0 + Math.exp(-value));
 		return (1 - sigmoid) * sigmoid;
 	}
@@ -143,7 +143,7 @@ public class NeuralNetwork implements Serializable {
 		return 0;
 	}
 
-	protected void input(double[] values) {
+	private void input(double[] values) {
 		nodes[0] = values;
 		//Calculate nodes in inner layers
 		for(int i = 1; i < nodes.length - 1; i++) {
@@ -180,7 +180,7 @@ public class NeuralNetwork implements Serializable {
 		}	
 	}
 	
-	protected double getActivationFunction(double value, ActivationFunction function) {
+	private double getActivationFunction(double value, ActivationFunction function) {
 		nodesBeforeActivation = nodes;
 		switch(function) {
 		case SIGMOID:
@@ -190,7 +190,7 @@ public class NeuralNetwork implements Serializable {
 		}
 	}
 	
-	protected double getSigmoid(double value) {
+	private double getSigmoid(double value) {
 		return 1.0 / (1.0 + Math.exp(-value));		
 	}
 	
