@@ -106,17 +106,16 @@ public class NeuralNetwork implements Serializable {
 				}
 			}
 		}
-		//Add to weights and biases the gradient of the training data (Average of total changes).
 		for(int i = 0; i < weights.length; i++) {
-			for(int j = 0; j < nodes[i + 1].length; j++) {
-				for(int k = 0; k < nodes[i].length; k++) {
+			for(int j = 0; j < weights[i].length; j++) {
+				for(int k = 0; k < weights[i][j].length; k++) {
 					weights[i][j][k] += -learningConstant * weightChanges[i][j][k] / batch.length;
 				}
 			}
 		}
 		for(int i = 0; i < biases.length; i++) {
-			for(int j = 0; j < biases.length; j++) {
-				
+			for(int j = 0; j < biases[i].length; j++) {
+				biases[i][j] += -learningConstant * biasChanges[i][j] / batch.length;
 			}
 		}
 
