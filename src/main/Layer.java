@@ -5,13 +5,9 @@ import java.io.Serializable;
 import main.ActivationFunctions.ActivationFunction;
 
 public class Layer implements Serializable {
-	
+	/*
 	private static final long serialVersionUID = 1L;
 	private double[] nodes;
-	private double[] nodesBeforeActivation;
-	private double[] biases;
-	private double[] biasChangeTotal;
-	private double[] nodeChangeTotal;
 	private int length;
 	
 	public Layer(int length) {
@@ -88,5 +84,5 @@ public class Layer implements Serializable {
 			nodes[i] = 1.0 / (1.0 + Math.exp(-nodes[i]));
 		}
 	}
-
+	*/
 }
