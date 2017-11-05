@@ -13,9 +13,6 @@ import main.CostFunctions.CostFunction;
 
 public class NeuralNetwork implements Serializable {
 	
-	//TODO Turn layers into double[][] and add all garbage inside to the NeuralNetwork;
-	//TODO All other variables in layers should be scope variables in train();
-	
 	private static final long serialVersionUID = 1L;
 	private double[][] nodes;
 	private double[][] nodesBeforeActivation;
@@ -32,9 +29,11 @@ public class NeuralNetwork implements Serializable {
 		this.hiddenLayerFunction = hiddenLayerFunction;
 		this.outputLayerFunction = outputLayerFunction;
 		this.costFunction = costFunction;
-		biases = new double[nodes.length][nodes[0].length];
-		nodesBeforeActivation = new double[nodes.length][nodes[0].length];
+		biases = new double[nodes.length][];
+		nodesBeforeActivation = new double[nodes.length][];
 		for(int i = 0; i < nodes.length; i++) {
+			biases[i] = new double[nodes[i].length];
+			nodesBeforeActivation[i] = new double[nodes[i].length];
 			for(int j = 0; j < nodes[i].length; j++) {
 				this.nodes[i][j] = Math.random();
 				biases[i][j] = Math.random();
@@ -42,9 +41,10 @@ public class NeuralNetwork implements Serializable {
 		}
 		weights = new double[nodes.length - 1][][];
 		for(int i = 0; i < weights.length; i++) {
-			weights[i] = new double[nodes[i + 1].length][nodes[i].length];
-			for(int j = 0; i < nodes[i + 1].length; i++) {
-				for(int k = 0; j < nodes[i].length; j++) {
+			weights[i] = new double[nodes[i + 1].length][];
+			for(int j = 0; j < nodes[i + 1].length; j++) {
+				weights[i][j] = new double[nodes[i].length];
+				for(int k = 0; k < nodes[i].length; k++) {
 					weights[i][j][k] = Math.random();
 				}
 			}
@@ -115,9 +115,18 @@ public class NeuralNetwork implements Serializable {
 
 	}
 
-	private double getActivationDerivitive(double nodeBeforeActivation, ActivationFunction function) {
-		// TODO Auto-generated method stub
-		return 0;
+	private double getActivationDerivitive(double value, ActivationFunction function) {
+		switch(function) {
+		case SIGMOID:
+			return getSigmoidDerivitive(value);
+		default:
+			return -1;
+		}
+	}
+	
+	protected double getSigmoidDerivitive(double value) {
+		double sigmoid =  1.0 / (1.0 + Math.exp(-value));
+		return (1 - sigmoid) * sigmoid;
 	}
 
 	private double getCostDerivitive(double actual, double target) {
@@ -145,7 +154,7 @@ public class NeuralNetwork implements Serializable {
 			}
 			nodesBeforeActivation[i] = nodes[i];
 			for(int j = 0; j < nodes[i].length; j++) {
-				nodes[i][j] = applyActivationFunction(nodes[i][j], hiddenLayerFunction);
+				nodes[i][j] = getActivationFunction(nodes[i][j], hiddenLayerFunction);
 			}
 		}
 		//Calculate nodes in outer layer
@@ -161,21 +170,21 @@ public class NeuralNetwork implements Serializable {
 		}
 		nodesBeforeActivation[nodes.length - 1] = nodes[nodes.length - 1];
 		for(int i = 0; i < nodes[nodes.length - 1].length; i++) {
-			nodes[nodes.length - 1][i] = applyActivationFunction(nodes[nodes.length - 1][i], hiddenLayerFunction);
+			nodes[nodes.length - 1][i] = getActivationFunction(nodes[nodes.length - 1][i], hiddenLayerFunction);
 		}	
 	}
 	
-	protected double applyActivationFunction(double value, ActivationFunction function) {
+	protected double getActivationFunction(double value, ActivationFunction function) {
 		nodesBeforeActivation = nodes;
 		switch(function) {
 		case SIGMOID:
-			return applySigmoid(value);
+			return getSigmoid(value);
 		default:
 			return -1;
 		}
 	}
 	
-	protected double applySigmoid(double value) {
+	protected double getSigmoid(double value) {
 		return 1.0 / (1.0 + Math.exp(-value));		
 	}
 	
