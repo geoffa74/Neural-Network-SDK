@@ -88,7 +88,7 @@ public class NeuralNetwork implements Serializable {
 				nodeChanges[nodes.length - 1][i] = getCostDerivitive(nodes[nodes.length - 1][i], batch[batchIndex].getOutputNode(i));
 				biasChanges[nodes.length - 1][i] = activationChange * nodeChanges[nodes.length - 1][i];
 				for(int j = 0; j < nodes[nodes.length - 2].length; j++) {
-					weightChanges[weightChanges.length - 1][i][j] = nodes[j][i] * activationChange * nodeChanges[nodes.length - 1][i];
+					weightChanges[weightChanges.length - 1][i][j] = nodes[nodes.length - 2][j] * activationChange * nodeChanges[nodes.length - 1][i];
 					nodeChanges[nodes.length - 2][j] += weights[weights.length - 1][i][j] * activationChange * nodeChanges[nodes.length - 1][i];
 				}
 			}
