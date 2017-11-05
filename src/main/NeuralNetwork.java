@@ -16,7 +16,6 @@ public class NeuralNetwork implements Serializable {
 	private static final long serialVersionUID = 1L;
 	private double[][] nodes;
 	private double[][] nodesBeforeActivation;
-	private int numLayers;
 	private double[][][] weights;
 	private double[][] biases;
 	private ActivationFunction hiddenLayerFunction;
@@ -25,7 +24,6 @@ public class NeuralNetwork implements Serializable {
 	
 	public NeuralNetwork(double[][] nodes, ActivationFunction hiddenLayerFunction, ActivationFunction outputLayerFunction, CostFunction costFunction) {
 		this.nodes = nodes;
-		numLayers = nodes.length;
 		this.hiddenLayerFunction = hiddenLayerFunction;
 		this.outputLayerFunction = outputLayerFunction;
 		this.costFunction = costFunction;
@@ -53,7 +51,7 @@ public class NeuralNetwork implements Serializable {
 	
 	public double[] getResults(double[] values) {
 		input(values);
-		return nodes[numLayers - 1];
+		return nodes[nodes.length - 1];
 	}
 	
 	public void train(TrainingData[] batch, double learningConstant) {
@@ -69,7 +67,7 @@ public class NeuralNetwork implements Serializable {
 			}
 		}
 		
-		double[][][] weightChanges = new double[numLayers - 1][][];
+		double[][][] weightChanges = new double[nodes.length - 1][][];
 		for(int i = 0; i < weights.length; i++) {
 			weightChanges[i] = new double[nodes[i + 1].length][];
 			for(int j = 0; j < nodes[i + 1].length; j++) {
@@ -85,17 +83,17 @@ public class NeuralNetwork implements Serializable {
 			input(batch[batchIndex].getInput());
 			double activationChange;
 			//update weights and biases of output layer
-			for(int i = 0; i < nodes[numLayers - 1].length; i++) {
-				activationChange = getActivationDerivitive(nodesBeforeActivation[numLayers - 1][i], outputLayerFunction);
-				nodeChanges[numLayers - 1][i] = getCostDerivitive(nodes[numLayers - 1][i], batch[batchIndex].getOutputNode(i));
-				biasChanges[numLayers - 1][i] = activationChange * nodeChanges[numLayers - 1][i];
-				for(int j = 0; j < nodes[numLayers - 2].length; j++) {
-					weightChanges[weightChanges.length - 1][i][j] = nodes[j][i] * activationChange * nodeChanges[numLayers - 1][i];
-					nodeChanges[numLayers - 2][j] += weights[weights.length - 1][i][j] * activationChange * nodeChanges[numLayers - 1][i];
+			for(int i = 0; i < nodes[nodes.length - 1].length; i++) {
+				activationChange = getActivationDerivitive(nodesBeforeActivation[nodes.length - 1][i], outputLayerFunction);
+				nodeChanges[nodes.length - 1][i] = getCostDerivitive(nodes[nodes.length - 1][i], batch[batchIndex].getOutputNode(i));
+				biasChanges[nodes.length - 1][i] = activationChange * nodeChanges[nodes.length - 1][i];
+				for(int j = 0; j < nodes[nodes.length - 2].length; j++) {
+					weightChanges[weightChanges.length - 1][i][j] = nodes[j][i] * activationChange * nodeChanges[nodes.length - 1][i];
+					nodeChanges[nodes.length - 2][j] += weights[weights.length - 1][i][j] * activationChange * nodeChanges[nodes.length - 1][i];
 				}
 			}
 			//update weights and biases of hidden layers;
-			for(int i = numLayers - 2; i > 0; i--) {
+			for(int i = nodes.length - 2; i > 0; i--) {
 				for(int j = 0; j < nodes[i].length; j++) {
 					activationChange = getActivationDerivitive(nodesBeforeActivation[i][j], hiddenLayerFunction);
 					biasChanges[i][j] += activationChange * nodeChanges[i][j];
