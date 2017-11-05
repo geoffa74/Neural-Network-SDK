@@ -58,9 +58,11 @@ public class NeuralNetwork implements Serializable {
 	
 	public void train(TrainingData[] batch, double learningConstant) {
 
-		double[][] nodeChanges = new double[nodes.length][nodes[0].length];
-		double[][] biasChanges = new double[nodes.length][nodes[0].length];
+		double[][] nodeChanges = new double[nodes.length][];
+		double[][] biasChanges = new double[nodes.length][];
 		for(int i = 0; i < nodes.length; i++) {
+			nodeChanges[i] = new double[nodes[i].length];
+			biasChanges[i] = new double[nodes[i].length];
 			for(int j = 0; j < nodes[i].length; j++) {
 				biasChanges[i][j] = 0.0;
 				nodeChanges[i][j] = 0.0;
@@ -69,9 +71,10 @@ public class NeuralNetwork implements Serializable {
 		
 		double[][][] weightChanges = new double[numLayers - 1][][];
 		for(int i = 0; i < weights.length; i++) {
-			weightChanges[i] = new double[nodes[i + 1].length][nodes[i].length];
-			for(int j = 0; i < nodes[i + 1].length; i++) {
-				for(int k = 0; j < nodes[i].length; j++) {
+			weightChanges[i] = new double[nodes[i + 1].length][];
+			for(int j = 0; j < nodes[i + 1].length; j++) {
+				weightChanges[i][j] = new double[nodes[i].length];
+				for(int k = 0; k < nodes[i].length; k++) {
 					weights[i][j][k] = 0.0;
 				}
 			}
@@ -107,9 +110,9 @@ public class NeuralNetwork implements Serializable {
 		for(int i = 0; i < weights.length; i++) {
 			for(int j = 0; j < weights[i].length; j++) {
 				for(int k = 0; k < weights[j].length; k++) {
-					weights[i][j][k] += weightChanges[i][j][k] / batch.length;
+					weights[i][j][k] += -learningConstant * weightChanges[i][j][k] / batch.length;
 				}
-				biases[i][j] += biasChanges[i][j] / batch.length;
+				biases[i][j] += -learningConstant * biasChanges[i][j] / batch.length;
 			}
 		}
 
