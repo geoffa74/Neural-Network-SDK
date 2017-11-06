@@ -56,14 +56,11 @@ public class NeuralNetwork implements Serializable {
 	
 	public void train(TrainingData[] batch, double learningConstant) {
 
-		double[][] nodeChanges = new double[nodes.length][];
 		double[][] biasChanges = new double[nodes.length][];
 		for(int i = 0; i < nodes.length; i++) {
-			nodeChanges[i] = new double[nodes[i].length];
 			biasChanges[i] = new double[nodes[i].length];
 			for(int j = 0; j < nodes[i].length; j++) {
 				biasChanges[i][j] = 0.0;
-				nodeChanges[i][j] = 0.0;
 			}
 		}
 		
@@ -82,13 +79,20 @@ public class NeuralNetwork implements Serializable {
 		for(int batchIndex = 0; batchIndex < batch.length; batchIndex++) {
 			input(batch[batchIndex].getInput());
 			double activationChange;
+			double[][] nodeChanges = new double[nodes.length][];
+			for(int i = 0; i < nodes.length; i++) {
+				nodeChanges[i] = new double[nodes[i].length];
+				for(int j = 0; j < nodes[i].length; j++) {
+					nodeChanges[i][j] = 0.0;
+				}
+			}
 			//update weights and biases of output layer
 			for(int i = 0; i < nodes[nodes.length - 1].length; i++) {
 				activationChange = getActivationDerivitive(nodesBeforeActivation[nodes.length - 1][i], outputLayerFunction);
 				nodeChanges[nodes.length - 1][i] = getCostDerivitive(nodes[nodes.length - 1][i], batch[batchIndex].getOutputNode(i));
-				biasChanges[nodes.length - 1][i] = activationChange * nodeChanges[nodes.length - 1][i];
+				biasChanges[nodes.length - 1][i] += activationChange * nodeChanges[nodes.length - 1][i];
 				for(int j = 0; j < nodes[nodes.length - 2].length; j++) {
-					weightChanges[weightChanges.length - 1][i][j] = nodes[nodes.length - 2][j] * activationChange * nodeChanges[nodes.length - 1][i];
+					weightChanges[weightChanges.length - 1][i][j] += nodes[nodes.length - 2][j] * activationChange * nodeChanges[nodes.length - 1][i];
 					nodeChanges[nodes.length - 2][j] += weights[weights.length - 1][i][j] * activationChange * nodeChanges[nodes.length - 1][i];
 				}
 			}
@@ -98,7 +102,7 @@ public class NeuralNetwork implements Serializable {
 					activationChange = getActivationDerivitive(nodesBeforeActivation[i][j], hiddenLayerFunction);
 					biasChanges[i][j] += activationChange * nodeChanges[i][j];
 					for(int k = 0; k < nodes[i - 1].length; k++) {
-						weightChanges[i - 1][j][k] = nodes[i - 1][k] * activationChange * nodeChanges[i][j];
+						weightChanges[i - 1][j][k] += nodes[i - 1][k] * activationChange * nodeChanges[i][j];
 						nodeChanges[i - 1][k] += weights[i - 1][j][k] * activationChange * nodeChanges[i][j];
 					}
 				}
@@ -150,11 +154,7 @@ public class NeuralNetwork implements Serializable {
 				for(int k = 0; k < nodes[i - 1].length; k++) {
 					value += nodes[i - 1][k] * weights[i - 1][j][k];
 				}
-				nodes[i][j] = value;
-			}
-			//add biases
-			for(int j = 0; j < nodes[i].length; j++) {
-				nodes[i][j] += biases[i][j];
+				nodes[i][j] = value + biases[i][j];
 			}
 			nodesBeforeActivation[i] = nodes[i];
 			for(int j = 0; j < nodes[i].length; j++) {
@@ -167,10 +167,7 @@ public class NeuralNetwork implements Serializable {
 			for(int j = 0; j < nodes[nodes.length - 2].length; j++) {
 				value += nodes[nodes.length - 2][j] * weights[nodes.length - 2][i][j];
 			}
-			nodes[nodes.length - 1][i] = value;
-		}
-		for(int i = 0; i < nodes[nodes.length - 1].length; i++) {
-			nodes[nodes.length - 1][i] += biases[nodes.length - 1][i];
+			nodes[nodes.length - 1][i] = value + biases[nodes.length - 1][i];
 		}
 		nodesBeforeActivation[nodes.length - 1] = nodes[nodes.length - 1];
 		for(int i = 0; i < nodes[nodes.length - 1].length; i++) {
