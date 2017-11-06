@@ -14,12 +14,13 @@ public class Test {
 	
 	public static void main(String[] args) {
 		create();
-		trainNeuralNetwork(10, 0.1);
+		trainNeuralNetwork(100, 1);
 		test();
 	}
 	
 	private static void test() {
 		try {
+			int correct = 0;
 			NeuralNetwork nn = NeuralNetwork.load("C:\\Users\\appelbaumgl\\Desktop\\MNIST.jnn");
 			FileInputStream imageInput = new FileInputStream(new File("t10k-images.idx3-ubyte"));
 			FileInputStream labelInput = new FileInputStream(new File("t10k-labels.idx1-ubyte"));
@@ -31,7 +32,7 @@ public class Test {
 				byte[] label = new byte[1];
 				for(int j = 0; j < 784; j++) {
 					imageInput.read(pixel);
-					input[j] = ((double)pixel[0]) / 255.0;
+					input[j] = (double)(pixel[0] & 0xFF) / 255.0;						
 				}
 				double[] output = nn.getResults(input);
 				labelInput.read(label);
@@ -44,9 +45,9 @@ public class Test {
 						answer = j;
 					}
 				}
-				System.out.println(n + " " + answer + " " + biggest);
-				
+				if(n == answer) correct++;
 			}
+			System.out.print(correct / 10000.0);
 			imageInput.close();
 			labelInput.close();
 		} catch (FileNotFoundException e) {
@@ -67,7 +68,7 @@ public class Test {
 		nodes[1] = new double[16];
 		nodes[2] = new double[16];
 		nodes[3] = new double[10];
-		NeuralNetwork nn = new NeuralNetwork(nodes, ActivationFunction.SIGMOID, ActivationFunction.SIGMOID, CostFunction.QUADRATIC);
+		NeuralNetwork nn = new NeuralNetwork(nodes, ActivationFunction.RELU, ActivationFunction.SIGMOID, CostFunction.QUADRATIC);
 		try {
 			nn.save("C:\\Users\\appelbaumgl\\Desktop", "MNIST");
 		} catch (IOException e) {
